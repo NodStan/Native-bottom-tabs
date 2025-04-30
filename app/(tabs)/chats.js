@@ -17,6 +17,14 @@ export default function Chats() {
       let location = await Location.getCurrentPositionAsync({});
       console.log(location);
       setLocation(location);
+
+      try{
+        const response = axios.get(`https://nominatim.openstreetmap.org/reverse?lat=${location.coords.latitude}&lon=${location.coords.longitude}&format=json`);
+        const data = await response.json();`)
+
+      }catch (error){
+        console.log(error)
+      }
     })();
   }, []);
 
