@@ -18,7 +18,7 @@ export default function TabLayout() {
         options={{
           title: "Chats",
           tabBarIcon: ({ color }) => (
-            <FontAwesome size={28} name="home" color={color} />
+            <FontAwesome size={28} name="comments" color={color} />
           ),
         }}
       />

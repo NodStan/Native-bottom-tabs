@@ -1,56 +1,58 @@
-import { useState, useEffect } from 'react';
-import { Platform, Text, View, StyleSheet } from 'react-native';
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
+import { useEffect, useState } from "react";
+import { View, Text, Button } from "react-native";
+import axios from "axios";
 
 export default function Chats() {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [address, setAddress] = useState(null);
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to access location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
         return;
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      console.log(location);
+      // console.log(location);
       setLocation(location);
 
-      try{
-        const response = axios.get(`https://nominatim.openstreetmap.org/reverse?lat=${location.coords.latitude}&lon=${location.coords.longitude}&format=json`);
-        const data = await response.json();`)
+      try {
+        const response = await axios.get(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.coords.latitude}&lon=${location.coords.longitude}`,
+          {
+            headers: {
+              "User-Agent": "Location-App/1.0 (ogbonnafinbarr@gmail.com)",
+            },
+          }
+        );
 
-      }catch (error){
-        console.log(error)
+        if (response.data && response.data.address) {
+          const { residential, village, county } = response.data.address;
+          const { display_name } = response.data;
+
+          setAddress(display_name);
+        }
+      } catch (error) {
+        console.log(error);
       }
     })();
   }, []);
 
-  let text = 'Waiting...';
+  let text = "Waiting...";
   if (errorMsg) {
     text = errorMsg;
   } else if (location) {
-    text =`Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`;
+    text = `Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`;
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.paragraph}>{text}</Text>
+    <View>
+      <Text>{text}</Text>
+      <Text style={{ fontSize: 40 }}>{address}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  paragraph: {
-    fontSize: 18,
-    textAlign: 'center',
-  },
-});
